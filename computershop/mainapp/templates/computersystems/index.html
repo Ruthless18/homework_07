@@ -1,0 +1,23 @@
+{% extends 'root.html' %}
+
+{% block content %}
+    <h1>Привет, {{ user.username|default:"Гость"}}!</h1>
+    <ul>
+        {% for computer_system in computer_systems %}
+            <li>
+                <div>
+                    <h2>{{ computer_system.name }}</h2>
+                    <ul>
+                        {% for category in categories.categoryies.all %}
+                            <li>
+                                <div>
+                                    <h3>{{ category.name }} ({{ category.product }})</h3>
+                                </div>
+                            </li>
+                        {%  endfor %}
+                    </ul>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

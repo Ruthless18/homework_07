@@ -3,4 +3,4 @@ from django.apps import AppConfig
 
 class ComputersystemsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'computersystems'
+    name = 'mainapp'
