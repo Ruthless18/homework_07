@@ -13,6 +13,9 @@ User = get_user_model()
 def get_models_for_count(*model_names):
     return [models.Count(model_name) for model_name in model_names]
 
+def get_models_for_count2(*model_names):
+    return [models.Count(model_names)]
+
 
 def get_product_url(obj, viewname):
     ct_model = obj.__class__._meta.model_name
@@ -31,7 +34,7 @@ class MaxSizeErrorException(Exception):
     pass
 
 
-# Весь список товаров на главной
+# Список товаров
 class LatestProductManager:
 
     @staticmethod
@@ -48,6 +51,7 @@ class LatestProductManager:
                 if with_respect_to in args:
                     return sorted(products, key=lambda x: x.__class__._meta.model.name.startswith(with_respect_to), reverse=True)
         return products
+
 
 class LatestProducts:
 
@@ -66,8 +70,12 @@ class CategoryManager(models.Manager):
 
     def get_categories_in_side_bar(self):
         models = get_models_for_count('desktop', 'notebook')
-        qs = list(self.get_queryset().annotate(*models).values())
-        return [dict(id=c['id'], name=c['name'], slug=c['slug'], count=c[self.CATEGORY_NAME_COUNT_NAME[c['name']]]) for c in qs]
+        qs = list(self.get_queryset().annotate(*models))
+        data = [
+            dict(id=c.id, name=c.name, url=c.get_absolute_url(), count=getattr(c, self.CATEGORY_NAME_COUNT_NAME[c.name]))
+            for c in qs
+        ]
+        return data
 
 
 # Category(Desktop Computers, Notebooks, Peripherals)
@@ -79,6 +87,9 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('category_detail', kwargs={'slug': self.slug})
 
 
 # Product(INWI, WELL, PacMan)
@@ -153,14 +164,6 @@ class Desktop(Product):
 
     def get_absolute_url(self):
         return get_product_url(self, 'product_detail')
-
-    # def da_net(self):
-    #     fields = [self.wifi, self.bluetooth, self.rgb]
-    #     for field in fields:
-    #         if field == boolResult:
-    #             return field(str('Да'))
-    #         else:
-    #             return field = 'Нет'
 
 
 class Notebook(Product):

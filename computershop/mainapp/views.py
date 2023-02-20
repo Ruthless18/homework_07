@@ -1,10 +1,20 @@
 from django.shortcuts import render
-from django.views.generic import DetailView
+from django.views.generic import DetailView, View
 
-from .models import Desktop, Notebook, Category
+from .models import Desktop, Notebook, Category, LatestProducts
+from .mixins import CategoryDetailMixin, ProductDetailMixin
 
-def main_page(request):
-    return render(request, 'base.html', {})
+
+class BaseView(View):
+
+    def get(self, request, *args, **kwargs):
+        products = LatestProducts.objects.get_products_for_mp('desktop', 'notebook')
+        categories = Category.objects.get_categories_in_side_bar()
+        context = {
+            'categories': categories,
+            'products': products
+        }
+        return render(request, 'base.html', context)
 
 
 class ProductDetailView(DetailView):
@@ -25,6 +35,15 @@ class ProductDetailView(DetailView):
     slug_url_kwarg = 'slug'
 
 
-def store(request):
+def categories(request):
     categories = Category.objects.get_categories_in_side_bar()
-    return render(request, 'store.html', {'categories': categories})
+    return render(request, 'categories.html', {'categories': categories})
+
+
+class CategoryDetailView(ProductDetailMixin, DetailView):
+
+    model = Category
+    queryset = Category.objects.all()
+    context_object_name = 'category'
+    template_name = 'category_detail.html'
+    slug_url_kwarg = 'slug'
