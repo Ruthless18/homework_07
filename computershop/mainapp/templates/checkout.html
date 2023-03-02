@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<!-- NAVIGATION -->
+<nav id="navigation">
+    <!-- container -->
+    <div class="container">
+        <!-- responsive-nav -->
+        <div id="responsive-nav">
+            <!-- NAV -->
+            <ul class="main-nav nav navbar-nav">
+                <li><a href="{% url 'base' %}">Главная</a></li>
+                <li><a href="{% url 'categories' %}">Каталог</a></li>
+            </ul>
+            <!-- /NAV -->
+        </div>
+        <!-- /responsive-nav -->
+    </div>
+    <!-- /container -->
+</nav>
+<!-- /NAVIGATION -->
+
+<!-- BREADCRUMB -->
+<div id="breadcrumb" class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">Оформление заказа</h3>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /BREADCRUMB -->
+
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-7">
+                <!-- Billing Details -->
+                <div class="billing-details">
+                    <div class="section-title">
+                        <h3 class="title">Ваши данные</h3>
+                        {% if messages %}
+                            {% for message in messages %}
+                              <div class="alert alert-success alert-dismissible fade show" style="opacity: 100" role="alert">
+                                <strong>{{ message }}</strong>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <form action="{% url 'make_order' %}" method="POST">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <p> </p>
+                            <input type="submit" class="btn primary-btn order-submit" value="Оформить заказ">
+                        </form>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-checkbox">
+                            <input type="checkbox" id="create-account">
+                            <label for="create-account">
+                                <span></span>
+                                Создать аккаунт?
+                            </label>
+                            <div class="caption">
+                                <p>Введите пароль</p>
+                                <input class="input" type="password" name="password" placeholder="Введите свой пароль">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /Billing Details -->
+
+            </div>
+
+            <!-- Order Details -->
+            <div class="col-md-5 order-details">
+                <div class="section-title text-center">
+                    <h3 class="title">Ваш заказ</h3>
+                </div>
+                <div class="order-summary">
+                    <div class="order-col">
+                        <div><strong>Наименование</strong></div>
+                        <div><strong>Стоимость</strong></div>
+                    </div>
+                    <div class="order-products">
+                        {% for item in cart.products.all %}
+                        <div class="order-col">
+                            <div>{{ item.quality }} x {{ item.content_object.name }}</div>
+                            <div>{{ item.content_object.price }} руб.</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="order-col">
+                        <div>Доставка</div>
+                        <div><strong>Бесплатно</strong></div>
+                    </div>
+                    <div class="order-col">
+                        <div><strong>Общая стоимость</strong></div>
+                        <div><strong class="order-total">{{ cart.final_price }}</strong></div>
+                    </div>
+                </div>
+                <div class="payment-method">
+                    <div class="input-radio">
+                        <input type="radio" name="payment" id="payment-1">
+                        <label for="payment-1">
+                            <span></span>
+                            Банковская карта
+                        </label>
+                        <div class="caption">
+                            <p> </p>
+                        </div>
+                    </div>
+                    <div class="input-radio">
+                        <input type="radio" name="payment" id="payment-2">
+                        <label for="payment-2">
+                            <span></span>
+                            СБП (Система быстрых переводов)
+                        </label>
+                        <div class="caption">
+                            <p> </p>
+                        </div>
+                    </div>
+                    <div class="input-radio">
+                        <input type="radio" name="payment" id="payment-3">
+                        <label for="payment-3">
+                            <span></span>
+                            Оплата при получении
+                        </label>
+                        <div class="caption">
+                            <p> </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-checkbox">
+                    <input type="checkbox" id="terms">
+                    <label for="terms">
+                        <span></span>
+                        Даю согласие на <a href="#">обработку персональных данных</a>
+                    </label>
+                </div>
+{#                <input type="submit" class="btn primary-btn order-submit" value="Оформить заказ">#}
+            </div>
+            <!-- /Order Details -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+{% endblock content %}

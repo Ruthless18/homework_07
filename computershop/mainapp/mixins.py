@@ -1,24 +1,51 @@
 from django.shortcuts import render
 from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.detail import View
 
-from .models import Category, LatestProducts
+from .models import (
+    Category,
+    LatestProducts,
+    Cart,
+    Customer,
+    Desktop,
+    Notebook,
+)
 
 
 class CategoryDetailMixin(SingleObjectMixin):
 
+    CATEGORY_SLUG_PRODUCT_MODEL = {
+        'desktops': Desktop,
+        'notebooks': Notebook,
+    }
+
     def get_context_data(self, **kwargs):
+        if isinstance(self.get_object(), Category):
+            model = self.CATEGORY_SLUG_PRODUCT_MODEL[self.get_object().slug]
+            context = super().get_context_data(**kwargs)
+            context['categories'] = Category.objects.get_categories_in_side_bar()
+            context['category_products'] = model.objects.all()
+            return context
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.get_categories_in_side_bar()
         return context
 
 
-class ProductDetailMixin(SingleObjectMixin):
+class CartMixin(View):
 
-    def get(self, request, *args, **kwargs):
-        products = LatestProducts.objects.get_products_for_mp('desktop', 'notebook')
-        categories = Category.objects.get_categories_in_side_bar()
-        context = {
-            'categories': categories,
-            'products': products
-        }
-        return render(request, 'category_detail.html', context)
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            customer = Customer.objects.filter(user=request.user).first()
+            if not customer:
+                customer = Customer.objects.create(
+                    user=request.user
+                )
+            cart = Cart.objects.filter(owner=customer, in_order=False).first()
+            if not cart:
+                cart = Cart.objects.create(owner=customer)
+        else:
+            cart = Cart.objects.filter(for_anonymous_user=True).first()
+            if not cart:
+                cart = Cart.objects.create(for_anonymous_user=True)
+        self.cart = cart
+        return super().dispatch(request, *args, **kwargs)
