@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- NAVIGATION -->
+<nav id="navigation">
+    <!-- container -->
+    <div class="container">
+        <!-- responsive-nav -->
+        <div id="responsive-nav">
+            <!-- NAV -->
+            <ul class="main-nav nav navbar-nav">
+                <li><a href="{% url 'base' %}">Главная</a></li>
+                <li class="active"><a href="{% url 'categories' %}">Каталог</a></li>
+            </ul>
+            <!-- /NAV -->
+        </div>
+        <!-- /responsive-nav -->
+    </div>
+    <!-- /container -->
+</nav>
+<!-- /NAVIGATION -->
+
+<!-- /BREADCRUMB -->
+<div class="container">
+    {% for category in categories %}
+        <div class="row">
+            <!-- product -->
+            <div class="col-md-4 col-xs-6">
+                <div class="product">
+                    <div class="product-img">
+                        <img src="/media/categories/category-{{ category.id }}.jpg" alt="">
+                    </div>
+                    <div class="product-body">
+                        <h3 class="product-name"><a href="{{ category.url }}">{{ category.name }} ({{ category.count }})</a></h3>
+                    </div>
+                </div>
+            </div>
+    {% endfor %}
+        </div>
+    <!-- /product -->
+</div>
+</div>
+{% endblock content %}
